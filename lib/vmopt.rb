@@ -1,5 +1,4 @@
 require "vmopt/version"
+require "vmopt/notepad"
 
-module Vmopt
-  # Your code goes here...
-end
+
