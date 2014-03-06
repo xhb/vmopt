@@ -1,16 +1,17 @@
 # encoding: utf-8
 require 'win32ole'
 WIN32OLE.codepage = WIN32OLE::CP_UTF8
+require 'Win32API'
 require 'vmopt/ext/string_ext'
 require 'rautomation'
-require "au3"
 
 =begin rdoc
 类名: 通用操作类
 描述: 封装系统操作调用相关的内容
 =end
 
-module Utils
+module WinUtils
+
   class KillProcessFailError < RuntimeError; end  #杀死进程失败的错误
   class EmptyFileFailError < RuntimeError; end  #清除目录错误
   class NotFindZipError < RuntimeError; end   #查不到对应的ZIP文件
@@ -23,7 +24,7 @@ module Utils
   class SSHUnknownError < RuntimeError; end #ssh连接失败
   class WaitConnectTimeoutError < RuntimeError; end #TCP连接失败异常
   class NoSavePathError < RuntimeError;end #没有路径可保存
-  #extend self #修改成self
+
 =begin rdoc
   参数：无
   作用：检测到除了为简体中文时为中文系统，其余都判断为英文系统.
@@ -35,22 +36,6 @@ module Utils
     end
     "en"
   end 
-
-# =begin rdoc
-  # 参数：zipfilepath,压缩全路径，updater_dir，升级客户端存放路径
-  # 作用：解压zip文件并得到解压后的文件及路径
-  # 返回值：返回升级客户端的路径
-# =end    
-  # def self.extract_zipfile(zipfilepath,updater_dir)
-    # raise ::Utils::NotFindZipError,"Can't find the zipfile :#{zipfilepath.xy_gbktoutf8}" if ! File.exist?(zipfilepath.xy_utf8togbk)
-    # Zip::ZipFile.open(zipfilepath.xy_utf8togbk) do |zip|
-      # zip.each do |file| 
-        # fpath = File.join(updater_dir.xy_utf8togbk,file.name)
-        # FileUtils.mkdir_p(File.dirname(fpath))
-        # zip.extract(file, fpath){true} #{return false}
-      # end
-    # end
-  # end 
 
 =begin rdoc
   参数:titlename:查找的标题名称,activate_flag = false
@@ -83,10 +68,10 @@ module Utils
 =end 
   def self.find_window(titlename,flag = true)
     rautowindow = RAutomation::Window.new(:title=>titlename,:adapter=>"Autoit")
-    raise ::Utils::NotFindWindowError,"Not found the windows like #{titlename}." if ! rautowindow.exists?
+    raise ::WinUtils::NotFindWindowError,"Not found the windows like #{titlename}." if ! rautowindow.exists?
     if flag 
       res = rautowindow.WinActivate(rautowindow.title) unless rautowindow.WinActive(rautowindow.title)
-      raise ::Utils::ActivateFailError,"Cant't Activate the Window #{rautowindow.title}" if res.to_s == "0"
+      raise ::WinUtils::ActivateFailError,"Cant't Activate the Window #{rautowindow.title}" if res.to_s == "0"
     end
     rautowindow
   end 
@@ -128,7 +113,7 @@ module Utils
       end
       return true
     rescue =>err
-      raise ::Utils::KillProcessFailError,"Kill process: #{process_name.gbktoutf8} failed!err_msg:#{err}"
+      raise ::WinUtils::KillProcessFailError,"Kill process: #{process_name.gbktoutf8} failed!err_msg:#{err}"
     end
   end
 
@@ -159,14 +144,14 @@ module Utils
         next if ! File.exist?(file)
         #next if File.directory?(file) && (file.downcase == gbk_dest_dir.downcase)
         if File.directory?(file)
-          FileUtils.rm_rf(file)
+          FileWinUtils.rm_rf(file)
         else
           File.delete(file)
         end
       end
       return true
     rescue =>err  
-      raise ::Utils::EmptyFileFailError,"empty_dir #{dir.gbktoutf8} failed!err_msg:#{err}."
+      raise ::WinUtils::EmptyFileFailError,"empty_dir #{dir.gbktoutf8} failed!err_msg:#{err}."
     end
   end   
 
@@ -183,7 +168,7 @@ module Utils
       filepath_arr = filepath.split("/")
       return (Pathname.new(File.expand_path(filepath)).realpath).to_s.gsub("/","\\\\") if (filepath_arr[-1].downcase == gbk_filename.downcase && !File.directory?(filepath) )
     end
-    raise ::Utils::NotFindFileError,"Not find named :#{filename.gbktoutf8} file in the dir:#{dest_dir.gbktoutf8}."
+    raise ::WinUtils::NotFindFileError,"Not find named :#{filename.gbktoutf8} file in the dir:#{dest_dir.gbktoutf8}."
   end     
 =begin rdoc
   参数:两个字符串str1,str2
@@ -193,14 +178,14 @@ module Utils
   def self.remove_head_str(str1,str2)
     str1_size = str1.size
     str2_size = str2.size
-    raise ::Utils::NotSuitableStringError,"the length of str1 need > str2's size." if str1_size<str2_size
+    raise ::WinUtils::NotSuitableStringError,"the length of str1 need > str2's size." if str1_size<str2_size
     return "" if str1 == str2
     i = 1
     str2_arr_size = str2.split("\n").size
     result_str=""
     str1.each_line do |line|
       if i<=str2_arr_size
-        raise ::Utils::NotSuitableStringError,"The relation of str1:#{str1.dump} and str2:#{str2.dump} is not suitable." unless str2.include?(line)
+        raise ::WinUtils::NotSuitableStringError,"The relation of str1:#{str1.dump} and str2:#{str2.dump} is not suitable." unless str2.include?(line)
         i = i+1
         next
       end
@@ -209,65 +194,4 @@ module Utils
     result_str.strip
   end     
   
-# =begin rdoc
-#   参数:服务器地址，用户名，密码，端口，执行的命令
-#   作用:执行ssh服务器上的结果
-#   返回值：与hash值返回结果stdout,stderr,
-# =end  
-#   def self.exec_ssh_command(server,port,user,passwd,command)
-#     begin
-#       stdout = ""
-#       stderr = ""
-#       Net::SSH.start(server,user,:password=>passwd,:port=>port) do |ssh|
-#         ssh.exec(command) do |ch, stream, data|
-#           stderr += data if stream == :stderr
-#           stdout = data
-#         end     
-#       end
-#       hash = {:stdout=>stdout.strip,:stderr=>stderr.strip}
-#       hash  
-#     rescue Exception =>e
-#       case e
-#         when Errno::ETIMEDOUT,Errno::ECONNRESET,Errno::ECONNRESET,Errno::ECONNABORTED
-#           raise ::Utils::SSHConnectFailedError,"connect to ##{server} failed,#{e}"
-#         else
-#           raise ::Utils::SSHUnknownError,"Unkown Error,ERR_MSG:#{e}"
-#         end        
-#     end
-#   end
-
-# =begin rdoc
-#   参数:ip地址，端口，超时时间
-#   作用:在给定的超时时间内是否能够连接到指定的IP和TCP端口上
-#   返回值：不能的话抛出错误;
-# =end 
-#   def self.wait_connect_tcpport(ip,port,timeout)
-#     end_time = ::Time.now + timeout
-#     tcpsocket = nil
-#     until ::Time.now > end_time
-#       begin 
-#         tcpsocket = TCPSocket.open(ip,port)
-#         return true
-#       rescue Exception=>err
-#         case err
-#           when Errno::ETIMEDOUT
-#             if ::Time.now<=end_time
-#               retry             
-#             end
-#             raise ::Utils::WaitConnectTimeoutError,"TCP Connect to #{ip}:#{port}  timeout after #{timeout} seconds."
-#           else
-#           #其它任意异常也等待时间超时，解决有可能是因为重启造成的拒绝连接的问题
-#             if ::Time.now<=end_time
-#               retry             
-#             end
-#             raise err.class,err
-#           end
-#       ensure
-#         tcpsocket.close if tcpsocket     
-#       end
-#     end
-#   end 
-  
-
-  
-end #end of utils.
+end #end of WinUtils.

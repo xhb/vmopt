@@ -1,52 +1,7 @@
 # encoding: utf-8
 $:.unshift File.join(__FILE__,"..","..")
 
-require "vmopt/common/utils"
-
-# module Vmopt
-
-# 	class NotePad
-	  
-# 	  def initialize()
-# 	    AutoItX3.run("notepad.exe")
-# 	    AutoItX3::Window.wait("无标题 - 记事本")
-# 	    @window = AutoItX3::Window.new("无标题 - 记事本")
-# 	  end
-	  
-# 	  def close
-#         @window.close
-#       end
-
-# 	  def set_text(msg)
-# 	    @window.activate
-# 	    edit = @window.focused_control
-# 	    edit.text = msg
-# 	  end
-	  
-# 	  def read_text
-# 	    @window.activate 
-# 	    edit = @window.focused_control
-# 	    edit.text
-# 	  end  
-
-#       def save_to(filepath)
-#       	@window.activate
-#       	@window.select_menu_item("文件", "另存为")
-#       	window_save = AutoItX3::Window.new("另存为")
-#       	window_save.activate
-#         window_save.focused_control.text = filepath
-#         AutoItX3::send_keys("{enter}")
-
-#       end
-
-# 	end
-# end
-
-# notepad = Vmopt::NotePad.new()
-# notepad.set_text("adfhj")
-# puts notepad.read_text
-# notepad.save_to("C:\\1.txt")
-# notepad.close
+require "vmopt/windows/win_winutils"
 
 module Vmopt
 
@@ -71,11 +26,12 @@ module Vmopt
       end
 
       if opt[:open_window] 
-	      opt[:txt_path].nil? ? AutoItX3.run("notepad.exe") : AutoItX3.run("notepad.exe #{opt[:txt_path]}")
-	     
+        winexe = Win32API.new('kernel32', 'WinExec', 'PI', 'I')
+	      opt[:txt_path].nil? ? winexe.call("notepad.exe", 1) : winexe.call("notepad.exe #{opt[:txt_path]}", 1)
+    
       end
 
-      @window = Utils::find_window(/#{@title}/) 
+      @window = WinUtils::find_window(/#{@title}/) 
 
     end
     
@@ -103,7 +59,7 @@ module Vmopt
     def save(filepath=nil)
       if !filepath.nil?
         @window.WinMenuSelectItem("[CLASS:Notepad]", "", "文件", "另存为")
-        savewindow = Utils::find_window(/另存为/)
+        savewindow = WinUtils::find_window(/另存为/)
         savewindow.text_field(:class => "Edit", :id => 1148).set(filepath)
         savewindow.buttons.each do|button| 
           if button.value == "保存(&S)";
@@ -113,7 +69,7 @@ module Vmopt
       elsif !@path.nil? and filepath.nil?
         @window.WinMenuSelectItem("[CLASS:Notepad]", "", "文件", "保存")      
       elsif @path.nil? and filepath.nil?
-        raise Utils::NoSavePathError,"Not found the save path ."
+        raise WinUtils::NoSavePathError,"Not found the save path ."
       end
     end #end of save
     
@@ -127,9 +83,60 @@ module Vmopt
 end #end of module vmopt
 
 
-#Vmopt::NotePad.new()
-notepad = Vmopt::NotePad.new({:open_window => false,:txt_path => "C:\\t.txt"})
-notepad.set_text("hello world")
-puts notepad.read_text
-notepad.save()
-notepad.close
+
+if __FILE__ == $0
+  
+  File.delete("C:\\1.txt") if FileTest::exist?("C:\\1.txt")
+  #notepad = Vmopt::NotePad.new({:open_window => true})
+  notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => "C:\\t.txt"})
+  notepad.set_text("hello world")
+  puts notepad.read_text
+  notepad.save("C:\\1.txt")
+  notepad.close
+end
+
+
+#------使用 au3 的实现----先放着后续可能复用---
+#
+# module Vmopt
+#   class NotePad
+#     def initialize()
+#       AutoItX3.run("notepad.exe")
+#       AutoItX3::Window.wait("无标题 - 记事本")
+#       @window = AutoItX3::Window.new("无标题 - 记事本")
+#     end
+    
+#     def close
+#         @window.close
+#       end
+
+#     def set_text(msg)
+#       @window.activate
+#       edit = @window.focused_control
+#       edit.text = msg
+#     end
+    
+#     def read_text
+#       @window.activate 
+#       edit = @window.focused_control
+#       edit.text
+#     end  
+
+#       def save_to(filepath)
+#         @window.activate
+#         @window.select_menu_item("文件", "另存为")
+#         window_save = AutoItX3::Window.new("另存为")
+#         window_save.activate
+#         window_save.focused_control.text = filepath
+#         AutoItX3::send_keys("{enter}")
+
+#       end
+
+#   end
+# end
+
+# notepad = Vmopt::NotePad.new()
+# notepad.set_text("adfhj")
+# puts notepad.read_text
+# notepad.save_to("C:\\1.txt")
+# notepad.close
