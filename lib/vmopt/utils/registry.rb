@@ -1,4 +1,5 @@
-
+#encoding: utf-8
+#功能：操作注册表，注册硬件信息
 module Registry
   class << self
     def hklm_read(key, value)

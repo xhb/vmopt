@@ -1,6 +1,6 @@
-
-# A base module for collecting IP-related
-# information from all kinds of platforms.
+#encoding: utf-8
+# 功能：提供IP的规范性检查，适合所有平台
+# 
 module IP
   # A map of all the different regexes that work for
   # a given platform or set of platforms.

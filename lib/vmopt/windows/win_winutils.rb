@@ -1,4 +1,6 @@
 # encoding: utf-8
+#功能：提供windows窗口的基本操作
+#
 require 'win32ole'
 WIN32OLE.codepage = WIN32OLE::CP_UTF8
 require 'Win32API'

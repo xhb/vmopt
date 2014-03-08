@@ -1,4 +1,5 @@
-
+#encoding: utf-8
+#功能：wmi模块，用于查询本地设备信息
 module WMI
   class << self
     def connect(uri = wmi_resource_uri)

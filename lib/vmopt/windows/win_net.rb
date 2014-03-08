@@ -1,4 +1,6 @@
 #encoding: utf-8
+#功能：提供查询网卡详细信息的接口
+#
 $LOAD_PATH.unshift(File.join(__FILE__, '../..', '..'))
 require 'win32ole'
 WIN32OLE.codepage = WIN32OLE::CP_UTF8
@@ -11,6 +13,7 @@ module WinNetError
   class CMDexecFailedError < RuntimeError; end  #命令执行出错
   class NotFindFileError < RuntimeError; end   #查不到对应文件
   class NoSavePathError < RuntimeError;end #没有路径可保存
+  class InvalidParamError < RuntimeError;end #参数错误
 end
 
 class WinNet
