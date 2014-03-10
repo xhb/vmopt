@@ -5,7 +5,7 @@ require "vmopt/disk_operation"
 require "optparse"
 
 option = {}
-disk = DiskOperation.new
+$disk = DiskOperation.new
 option_parser = OptionParser.new do | opts |
   opts.banner = %q/
   Help: 
@@ -28,11 +28,11 @@ option_parser = OptionParser.new do | opts |
     option[:queryopt] = value
 
     if option[:queryopt] == 'harddisk'
-      disk.get_disk_information
+      $disk.get_disk_information
     elsif option[:queryopt] == 'partition'
-      disk.get_partition_information
+      $disk.get_partition_information
     elsif option[:queryopt] == 'unformated_disk'
-      disk.unformat_disk
+      $disk.unformat_disk
     else 
       puts "Please check the params..."
     end
@@ -44,9 +44,9 @@ option_parser = OptionParser.new do | opts |
     option[:disk] = value
 
     if option[:disk] == 'unformated_disk'
-      disk.chk_format_disk
+      $disk.chk_format_disk
     elsif option[:disk] =~ /\d/
-      disk.format_disk_by_index(option[:disk].to_i)
+      $disk.format_disk_by_index(option[:disk].to_i)
     else 
       puts "Please check the params..."
     end

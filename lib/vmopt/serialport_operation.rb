@@ -1,3 +1,4 @@
+#encoding: utf-8
 
 class SerialPortOperation
 
@@ -9,7 +10,7 @@ class SerialPortOperation
 	def get_serial_port
 		colItems = WMI.execquery ("select * from Win32_SerialPort")
 		for objItem in colItems do
-			print "串口名称:",(objItem.Name),"  状态：",objItem.Status,"\n"
+			print "串口名称:",(objItem.Name),"状态:",objItem.Status,"\n"
 		end
 	end
 =begin

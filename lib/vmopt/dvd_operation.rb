@@ -1,4 +1,4 @@
-
+#encoding: utf-8
 class DVDOperation
 =begin
 参数：无
