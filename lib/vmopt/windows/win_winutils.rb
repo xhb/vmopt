@@ -1,16 +1,12 @@
 # encoding: utf-8
 #功能：提供windows窗口的基本操作
 
-require 'win32ole'
-WIN32OLE.codepage = WIN32OLE::CP_UTF8
-require 'Win32API'
-require 'vmopt/ext/string_ext'
-require 'rautomation'
-
 =begin rdoc
 类名: 通用操作类
 描述: 封装系统操作调用相关的内容
 =end
+require "rautomation"
+require "vmopt/ext/string_ext"
 
 module WinUtils
 
@@ -99,9 +95,9 @@ module WinUtils
   def self.kill_process(process_name,reserve_process_path=nil)
     raise ArgumentError,"the argument can't be nil." if process_name.nil?
     begin
-      gbk_reserve_process_path = reserve_process_path.utf8togbk unless reserve_process_path.nil?
+      gbk_reserve_process_path = reserve_process_path.to_gbk unless reserve_process_path.nil?
       WIN32OLE.connect('winmgmts:\\\.').ExecQuery("SELECT * FROM Win32_Process").each do |item|
-        if item.Caption == process_name.utf8togbk
+        if item.Caption == process_name.to_gbk
           if gbk_reserve_process_path == nil
             item.Terminate
             next
@@ -112,7 +108,7 @@ module WinUtils
       end
       return true
     rescue =>err
-      raise ::WinUtils::KillProcessFailError,"Kill process: #{process_name.gbktoutf8} failed!err_msg:#{err}"
+      raise ::WinUtils::KillProcessFailError,"Kill process: #{process_name.to_utf8} failed!err_msg:#{err}"
     end
   end
 
@@ -123,7 +119,7 @@ module WinUtils
 =end  
   def self.find_process?(process_name)
     raise ArgumentError,"the argument can't be nil." if process_name.nil?
-    gbk_process_name = process_name.utf8togbk
+    gbk_process_name = process_name.to_gbk
     WIN32OLE.connect('winmgmts:\\\.').ExecQuery("SELECT * FROM Win32_Process").each do |item|
       return true if item.Caption.downcase == gbk_process_name.downcase 
     end
@@ -138,7 +134,7 @@ module WinUtils
   def self.empty_dir(dir)
     raise ArgumentError,"the argument can't be nil." if dir.nil?
     begin
-      gbk_dest_dir = dir.utf8togbk      
+      gbk_dest_dir = dir.to_gbk      
       Find.find(gbk_dest_dir) do |file|
         next if ! File.exist?(file)
         #next if File.directory?(file) && (file.downcase == gbk_dest_dir.downcase)
@@ -150,7 +146,7 @@ module WinUtils
       end
       return true
     rescue =>err  
-      raise ::WinUtils::EmptyFileFailError,"empty_dir #{dir.gbktoutf8} failed!err_msg:#{err}."
+      raise ::WinUtils::EmptyFileFailError,"empty_dir #{dir.to_utf8} failed!err_msg:#{err}."
     end
   end   
 
@@ -161,13 +157,13 @@ module WinUtils
 =end 
   def self.get_filepath(dest_dir,filename)
     raise ArgumentError,"the argument can't be nil." if dest_dir.nil? || filename.nil?  
-    gbk_dest_dir = dest_dir.utf8togbk
-    gbk_filename = filename.utf8togbk
+    gbk_dest_dir = dest_dir.to_gbk
+    gbk_filename = filename.to_gbk
     Find.find(gbk_dest_dir) do |filepath|
       filepath_arr = filepath.split("/")
       return (Pathname.new(File.expand_path(filepath)).realpath).to_s.gsub("/","\\\\") if (filepath_arr[-1].downcase == gbk_filename.downcase && !File.directory?(filepath) )
     end
-    raise ::WinUtils::NotFindFileError,"Not find named :#{filename.gbktoutf8} file in the dir:#{dest_dir.gbktoutf8}."
+    raise ::WinUtils::NotFindFileError,"Not find named :#{filename.to_utf8} file in the dir:#{dest_dir.to_utf8}."
   end     
 =begin rdoc
   参数:两个字符串str1,str2

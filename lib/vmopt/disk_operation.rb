@@ -1,4 +1,5 @@
 #encoding: utf-8
+require "vmopt/utils/wmi"
 
 class DiskOperation
 

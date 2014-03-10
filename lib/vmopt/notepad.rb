@@ -1,5 +1,6 @@
 # encoding: utf-8
 #$:.unshift File.join(__FILE__,"..","..")
+require "vmopt/windows/win_winutils"
 
 module Vmopt
 

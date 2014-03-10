@@ -1,4 +1,7 @@
 #encoding: utf-8
+require "vmopt/utils/wmi"
+require "au3"
+
 class DVDOperation
 =begin
 参数：无

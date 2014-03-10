@@ -1,5 +1,7 @@
 #encoding: utf-8
 #$:.unshift File.join(__FILE__,"..","..")
+require "vmopt/windows/win_net"
+require "vmopt/ext/string_ext"
 
 module Vmopt
 	class NetWork

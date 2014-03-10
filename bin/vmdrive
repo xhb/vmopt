@@ -5,7 +5,6 @@ require "vmopt/disk_operation"
 require "optparse"
 
 option = {}
-$disk = DiskOperation.new
 option_parser = OptionParser.new do | opts |
   opts.banner = %q/
   Help: 
@@ -26,30 +25,37 @@ option_parser = OptionParser.new do | opts |
   /
   opts.on('-q queryopt', '--query  queryopt', 'Query harddisk information') do |value|
     option[:queryopt] = value
-
-    if option[:queryopt] == 'harddisk'
-      $disk.get_disk_information
-    elsif option[:queryopt] == 'partition'
-      $disk.get_partition_information
-    elsif option[:queryopt] == 'unformated_disk'
-      $disk.unformat_disk
-    else 
-      puts "Please check the params..."
-    end
-
+    option[:cmd] = "query"
   end
 
   opts.on('-f disk', '--format disk', 'Specify harddrive index to format') do |value|
-    
     option[:disk] = value
-
-    if option[:disk] == 'unformated_disk'
-      $disk.chk_format_disk
-    elsif option[:disk] =~ /\d/
-      $disk.format_disk_by_index(option[:disk].to_i)
-    else 
-      puts "Please check the params..."
-    end
-    
+    option[:cmd] = "format"
   end
 end.parse!
+   
+   $disk = DiskOperation.new
+   if option[:cmd] == "query"
+      if option[:queryopt] == 'harddisk'
+        $disk.get_disk_information
+      elsif option[:queryopt] == 'partition'
+        $disk.get_partition_information
+      elsif option[:queryopt] == 'unformated_disk'
+        $disk.unformat_disk
+      else 
+        puts "Please check the params..."
+      end
+
+   elsif option[:cmd] == "format" 
+      if option[:disk] == 'unformated_disk'
+        $disk.chk_format_disk
+      elsif option[:disk] =~ /\d/
+        $disk.format_disk_by_index(option[:disk].to_i)
+      else 
+        puts "Please check the params..."
+      end
+
+   end
+
+
+

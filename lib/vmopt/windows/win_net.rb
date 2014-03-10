@@ -1,7 +1,10 @@
 #encoding: utf-8
 #功能：提供查询网卡详细信息的接口
 #
-#$LOAD_PATH.unshift(File.join(__FILE__, '../..', '..'))
+$LOAD_PATH.unshift(File.join(__FILE__, '../..', '..'))
+require "vmopt/utils/ip"
+require "vmopt/utils/registry"
+require "vmopt/utils/wmi"
 
 module WinNetError
   class NoInterfaceError < RuntimeError; end  #没有给网络借口

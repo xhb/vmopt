@@ -1,4 +1,6 @@
 #encoding: utf-8
+require "vmopt/utils/wmi"
+require "serialport"
 
 class SerialPortOperation
 
@@ -19,7 +21,7 @@ class SerialPortOperation
 返回值：默认
 =end
 	def write(strcom,strinput)
-		strinput.to_gbk
+		strinput
 		begin
 		File.open(strcom, 'w+') do |file|
  		file.write(strinput)
@@ -42,7 +44,7 @@ class SerialPortOperation
 		rescue Exception
 			print "Can't open #{strcom},Please input right serialport name"
 		end
-		return stroutput.to_gbk
+		return stroutput
 	end
 end
 
