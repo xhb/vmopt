@@ -30,8 +30,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
  
-  s.add_runtime_dependency "rautomation"
-  s.add_runtime_dependency "au3"
-  s.add_runtime_dependency "serialport"
+  spec.add_runtime_dependency "rautomation"
+  spec.add_runtime_dependency "au3"
+  spec.add_runtime_dependency "serialport"
 
 end
