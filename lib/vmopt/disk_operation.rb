@@ -40,7 +40,7 @@ class DiskOperation
 功能：判断哪些磁盘没有格式化
 返回值：没有格式化的磁盘索引号
 =end
-	def format?
+	def unformat_disk
 		colItems = WMI.execquery ("select * from Win32_DiskDrive")
 		index = []
         for colItem in colItems do

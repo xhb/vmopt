@@ -75,8 +75,11 @@ module Vmopt
       interface = "\""+interface.to_gbk+"\""
       ipset_cmd = "netsh interface ip set address name=#{interface} source=dhcp".to_gbk
       dnsset_cmd = "netsh interface ip set dns name=#{interface} source=dhcp".to_gbk
-      status = system("#{ipset_cmd}");
-      status
+      ipset_status = system("#{ipset_cmd}");
+      dnsset_status = system("#{dnsset_cmd}");
+      
+      ipset_status & dnsset_status
+
     end
     
     #功能：设置网卡为配置的参数

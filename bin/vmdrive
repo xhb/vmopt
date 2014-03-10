@@ -1,0 +1,52 @@
+require "vmopt/disk_operation"
+require "optparse"
+
+option = {}
+disk = DiskOperation.new
+option_parser = OptionParser.new do | opts |
+  opts.banner = %q/
+  Help: 
+    Description:
+      vmdrive tool, use for hard disk drive operation.
+    function:
+      1.get_disk_information        
+      2.get_partition_information
+      3.unformat_disk
+      4.chk_format_disk
+      5.format_disk_by_index
+    Example:
+      vmdrive --query  harddisk    
+      vmdrive --query  partition  
+      vmdrive --query  unformated_disk
+      vmdrive --format unformated_disk
+      vmdrive --format [diskindex]
+  /
+  opts.on('-q queryopt', '--query  queryopt', 'Query harddisk information') do |value|
+    option[:queryopt] = value
+
+    if option[:queryopt] == 'harddisk'
+      disk.get_disk_information
+    elsif option[:queryopt] == 'partition'
+      disk.get_partition_information
+    elsif option[:queryopt] == 'unformated_disk'
+      disk.unformat_disk
+    else 
+      puts "Please check the params..."
+    end
+
+  end
+
+  opts.on('-f disk', '--format disk', 'Specify harddrive index to format') do |value|
+    
+    option[:disk] = value
+
+    if option[:disk] == 'unformated_disk'
+      disk.chk_format_disk
+    elsif option[:disk] =~ /\d/
+      disk.format_disk_by_index(option[:disk].to_i)
+    else 
+      puts "Please check the params..."
+    end
+    
+  end
+end.parse!
