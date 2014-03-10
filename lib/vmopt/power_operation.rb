@@ -50,6 +50,6 @@ class PowerOperation
 
 end
 
-if __FILE__ = $0
+if __FILE__ == $0
 	PowerOperation.lock_user
 end
