@@ -1,6 +1,6 @@
 # encoding: utf-8
 #功能：提供windows窗口的基本操作
-#
+
 require 'win32ole'
 WIN32OLE.codepage = WIN32OLE::CP_UTF8
 require 'Win32API'
@@ -21,9 +21,6 @@ module WinUtils
   class NotSuitableStringError < RuntimeError; end #未按要求的的字符串
   class NotFindWindowError < RuntimeError; end #查找不到窗口
   class ActivateFailError < RuntimeError; end  #激活窗口失败
-  class SSHConnectFailedError < RuntimeError; end #ssh连接失败
-  class SSHAuthorFailedError < RuntimeError; end #ssh连接失败
-  class SSHUnknownError < RuntimeError; end #ssh连接失败
   class WaitConnectTimeoutError < RuntimeError; end #TCP连接失败异常
   class NoSavePathError < RuntimeError;end #没有路径可保存
 

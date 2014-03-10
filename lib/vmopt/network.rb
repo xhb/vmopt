@@ -1,7 +1,5 @@
 #encoding: utf-8
-$:.unshift File.join(__FILE__,"..","..")
-require "vmopt/windows/win_net"
-
+#$:.unshift File.join(__FILE__,"..","..")
 
 module Vmopt
 	class NetWork
@@ -15,11 +13,11 @@ module Vmopt
     #功能：检查网络接口的连接状态
     #返回：返回状态字串
 	  def self.show_interface_stat(interface)
-      raise WinNetError::NoInterfaceError "Give me no NetWorkinterface" if interface.nil? or interface.empty?       
+      adapter(interface);      
 	    WinNet.netconnstatus[interface]
 	  end
     
-    #功能：返回接口名对应的适配器
+    #功能：检查接口是否存在，返回接口名对应的适配器
     def self.adapter(interface)
       raise WinNetError::NoInterfaceError "Give me no NetWorkinterface" if interface.nil? or interface.empty? 
       adapter =WinNet.network_adapter.select do |inf|
@@ -31,13 +29,8 @@ module Vmopt
     
     #功能：执行devcon命令 
     def self.devcon_exec(cmd)
-      begin
-        system("#{cmd}");
-        return true;
-      rescue Exception => e
-        Mylogger.log e;
-        return false; 
-      end
+        status = system("#{cmd}");
+        status
     end
 
     #功能：给定一个网卡接口名，卸载网卡
@@ -79,39 +72,29 @@ module Vmopt
     #功能：设置网卡的配置模式为dhcp
     def self.adapter_set_dhcp(interface)
       adapter(interface);
-      interface = "\""+interface+"\""
-      ipset_cmd = "netsh interface ip set address name=#{interface} source=dhcp".utf8togbk
-      dnsset_cmd = "netsh interface ip set dns name=#{interface} source=dhcp".utf8togbk
-      
-      puts ipset_cmd.gbktoutf8
-      puts dnsset_cmd.gbktoutf8
-
-      begin
-        system(ipset_cmd)
-        system(dnsset_cmd)
-        return true
-      rescue Exception => e
-        puts e
-        return false
-      end
+      interface = "\""+interface.to_gbk+"\""
+      ipset_cmd = "netsh interface ip set address name=#{interface} source=dhcp".to_gbk
+      dnsset_cmd = "netsh interface ip set dns name=#{interface} source=dhcp".to_gbk
+      status = system("#{ipset_cmd}");
+      status
     end
     
     #功能：设置网卡为配置的参数
     def self.adapter_set_static(interface, opt={})
+      adapter(interface);
+      interface = "\""+interface.to_gbk+"\""
+      ipset_cmd = "netsh interface ip set address name=#{interface} source=static addr=#{opt[:addr]} mask=#{opt[:mask]}".to_gbk
+      gwset_cmd = "netsh interface ip set address name=#{interface} gateway=#{opt[:gateway]} gwmetric=0".to_gbk
+      dnsset_cmd = "netsh interface ip set dns name=#{interface} source=static addr=202.106.128.86 register=primary".to_gbk
+      dns2set_cmd = "netsh interface ip add dns name=#{interface} addr=8.8.8.8 index=2".to_gbk
       
-      ipset_cmd = "netsh interface ip set address name=#{interface} source=static addr=#{opt[:addr]} mask=#{opt[:mask]} gateway=#{opt[:gateway]}".utf8togbk
-      dnsset_cmd = "netsh interface ip set dns name=#{interface} source=static addr=202.106.128.86 register=primary".utf8togbk
-      dns2set_cmd = "netsh interface ip add dns name=#{interface} addr=8.8.8.8 index=2".utf8togbk
-      
-      begin
-        system(ipset_cmd) 
-        system(dnsset_cmd)
-        system(dns2set_cmd)
-        
-      rescue Exception => e
-        puts e
-        
-      end
+      ipset_status = system(ipset_cmd) 
+      gwset_status = system(gwset_cmd)
+      dns_status = system(dnsset_cmd)
+      dns2_staus = system(dns2set_cmd)
+
+      ipset_status & dns_status & dns2_staus & gwset_status
+
     end
 
   end
@@ -119,20 +102,18 @@ end
 
 if __FILE__ == $0
  
-  # #Vmopt::Mylogger.change_logdev_to_stdout
-
-  # Vmopt::NetWork.show_netinterface.each { |e| puts (e) }
-  # Vmopt::NetWork.show_netinterface.each do |inf|
-  #   puts  "#{inf} :" + Vmopt::NetWork.show_interface_stat(inf)
-  # end
-  # Vmopt::NetWork.adapter_opt("本地连接 4", "禁用")   
-  # Vmopt::NetWork.adapter_opt("本地连接 4", "启用")
-  # #Vmopt::NetWork.adapter_opt("本地连接 3", "卸载")
-  # # Vmopt::NetWork.adapter_rescan
-  # # sleep 10
-  # Vmopt::NetWork.adapter_discript.each{|d| puts (d) }
+  Vmopt::NetWork.show_netinterface.each { |e| puts (e) }
+  Vmopt::NetWork.show_netinterface.each do |inf|
+    puts  "#{inf} :" + Vmopt::NetWork.show_interface_stat(inf)
+  end
+  Vmopt::NetWork.adapter_opt("本地连接 4", "禁用")   
+  Vmopt::NetWork.adapter_opt("本地连接 4", "启用")
+  #Vmopt::NetWork.adapter_opt("本地连接 3", "卸载")
+  # Vmopt::NetWork.adapter_rescan
+  # sleep 10
+  Vmopt::NetWork.adapter_discript.each{|d| puts (d) }
    
-  #Vmopt::NetWork.adapter_set_static("本地连接 4", {:addr => "192.168.12.10", :mask => "255.255.252.0", :gateway => "192.168.12.1"})
+  Vmopt::NetWork.adapter_set_static("本地连接 4", {:addr => "192.168.12.10", :mask => "255.255.252.0", :gateway => "192.168.12.1"})
   Vmopt::NetWork.adapter_set_dhcp("本地连接 4")
   
 end

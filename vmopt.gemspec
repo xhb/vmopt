@@ -8,8 +8,17 @@ Gem::Specification.new do |spec|
   spec.version       = Vmopt::VERSION
   spec.authors       = ["xhb"]
   spec.email         = ["programstart@163.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{
+                          Internal virtual machine operations application： 
+                          including Notepad operations, 
+                          disk management, 
+                          connectivity testing, 
+                          drive management, 
+                          system resource queries, 
+                          network test, serial test, 
+                          windows system power management
+                        }
+  spec.summary       = %q{Internal virtual machine operations application}
   spec.homepage      = ""
   spec.license       = "MIT"
 

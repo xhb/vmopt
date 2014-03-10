@@ -1,7 +1,5 @@
 # encoding: utf-8
-$:.unshift File.join(__FILE__,"..","..")
-
-require "vmopt/windows/win_winutils"
+#$:.unshift File.join(__FILE__,"..","..")
 
 module Vmopt
 
@@ -20,7 +18,7 @@ module Vmopt
       if opt[:txt_path].nil?
         @title = "记事本"
       else  
-        basename = File.basename(opt[:txt_path], ".txt").gbktoutf8
+        basename = File.basename(opt[:txt_path], ".txt").to_utf8
         @title = "#{basename} - 记事本"
         @path = opt[:txt_path]
       end
