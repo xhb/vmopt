@@ -104,7 +104,8 @@ class DVDOperation
 返回值：默认
 =end
 	def read_dvd(str)
-		AutoItX3.run("explorer.exe #{str}")
+		#AutoItX3.run("explorer.exe #{str}")
+		system("dir  #{str}")
 	end
 end
 
