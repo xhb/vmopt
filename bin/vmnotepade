@@ -74,8 +74,7 @@ end.parse!
      elsif !option[:filepath].nil? and !option[:msg].nil? and option[:opened]=="txt"
        notepad = Vmopt::NotePad.new({:open_window => false, :txt_path => option[:filepath]})
        msg = notepad.read_text
-       notepad.close
-       
+       #notepad.close
        if option[:msg] == msg
          puts "检查已经打开的txt文档内容一致"
        else

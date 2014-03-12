@@ -15,8 +15,8 @@ module Vmopt
     #功能：检查网络接口的连接状态
     #返回：返回状态字串
 	  def self.show_interface_stat(interface)
-      adapter(interface);      
-	    WinNet.netconnstatus[interface]
+      adapter(interface.to_utf8);      
+	    WinNet.netconnstatus[interface.to_utf8]
 	  end
     
     #功能：检查接口是否存在，返回接口名对应的适配器

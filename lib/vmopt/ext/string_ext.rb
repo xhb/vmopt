@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'iconv'
+require 'iconv' if RUBY_VERSION.to_f < 1.9
 class String # :nodoc: all
   #判断是否为utf8
   def utf8?
@@ -18,7 +18,7 @@ class String # :nodoc: all
        return self if utf8?
        self.encode('UTF-8',enc)
     else
-      require 'iconv'
+      require 'iconv' if RUBY_VERSION.to_f < 1.9
       return self if utf8?
       begin 
         Iconv.iconv('UTF-8',enc,self).at(0).to_s
@@ -52,7 +52,7 @@ class String # :nodoc: all
     else
       begin
         self.unpack("U*")
-        require 'iconv'
+        require 'iconv' if RUBY_VERSION.to_f < 1.9
         Iconv.iconv('GB2312',enc,self).at(0).to_s
       rescue ::ArgumentError
         self
