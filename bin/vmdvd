@@ -98,7 +98,7 @@ end.parse!
      elsif option[:queryopt] == "read_dvd"
      	 unless option[:disksymbol].nil?
      	   $dvd.read_dvd(option[:disksymbol])
-     	   return ;
+     	   return 0;
      	 end
      	 puts "please check the params, disksymbol is nil"
      end
@@ -109,7 +109,7 @@ end.parse!
    	 elsif option[:disable_opt] == "disable_index_dvd"
    	 	 unless option[:diskindex].nil?
      	   $dvd.disable_index_dvd(option[:diskindex])
-     	   return ;
+     	   return 0;
      	 end
      	 puts "please check the params, diskindex is nil"
      end
@@ -127,7 +127,7 @@ end.parse!
    	 elsif option[:remov_disks] == "remove_index_dvd"
    	 	 unless option[:diskindex].nil?
    	 	 	 $dvd.remove_index_dvd(option[:diskindex])
-   	 	   return ;
+   	 	   return 0;
    	 	 end
    	 	 puts "please check the params."
    	 end

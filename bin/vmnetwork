@@ -96,7 +96,7 @@ end.parse!
      elsif option[:queryopt] == 'interface_stat'
        unless option[:inf].nil?
        	 Vmopt::NetWork.show_interface_stat(option[:inf])
-         return;
+         return 0;
        end
        puts "Please check the interface params..."
      else
@@ -124,7 +124,7 @@ end.parse!
    	 if option[:linktype] == "dhcp"
        unless  option[:inf].nil?
        	 Vmopt::NetWork.adapter_set_dhcp(option[:inf])
-       	 return;
+       	 return 0;
        end
        puts "Please check the params..."
 
