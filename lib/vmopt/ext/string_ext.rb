@@ -35,7 +35,7 @@ class String # :nodoc: all
       self.encode('GBK', enc)
     else
       return self unless utf8?
-      require 'iconv'
+      require 'iconv' if RUBY_VERSION.to_f < 1.9
       begin
         Iconv.iconv('GBK',enc,self).at(0).to_s
       rescue
