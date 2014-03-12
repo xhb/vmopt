@@ -5,6 +5,9 @@
 类名: 通用操作类
 描述: 封装系统操作调用相关的内容
 =end
+require "win32ole"
+WIN32OLE.codepage = WIN32OLE::CP_UTF8
+require "Win32API"
 require "rautomation"
 require "vmopt/ext/string_ext"
 

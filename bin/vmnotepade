@@ -47,15 +47,13 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
   
-  $pow = Vmopt::PowerOperation.new()
-
    case option[:cmd] 
    when "create"
      if !option[:filepath].nil? and !option[:msg].nil?
        File.delete(option[:filepath]) if FileTest::exist?(option[:filepath])
-       notepad = NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       notepad = Vmopt::NotePad.new({:open_window => true})
        notepad.set_text(option[:msg])
-       notepad.save
+       notepad.save(option[:filepath])
        notepad.close
      else
         puts "Please check the params..."
@@ -63,25 +61,25 @@ end.parse!
 
    when "query"
      if !option[:filepath].nil? and !option[:msg].nil? and option[:existed]=="txt"
-       notepad = NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => option[:filepath]})
        msg = notepad.read_text
+       notepad.close
+
        if option[:msg] == msg
          puts "检查已经存在且没有打开的txt文档内容一致"
-         return 0;
        else
          puts "检查已经存在且没有打开txt文档内容不一致"
-         return -1;
        end
 
      elsif !option[:filepath].nil? and !option[:msg].nil? and option[:opened]=="txt"
-       notepad = NotePad.new({:open_window => false, :txt_path => option[:filepath]})
+       notepad = Vmopt::NotePad.new({:open_window => false, :txt_path => option[:filepath]})
        msg = notepad.read_text
+       notepad.close
+       
        if option[:msg] == msg
          puts "检查已经打开的txt文档内容一致"
-         return 0;
        else
          puts "检查已经打开的txt文档内容不一致"
-         return -1;
        end
 
      else 

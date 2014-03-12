@@ -19,7 +19,7 @@ module Vmopt
       if opt[:txt_path].nil?
         @title = "记事本"
       else  
-        basename = File.basename(opt[:txt_path], ".txt").to_utf8
+        basename = File.basename(opt[:txt_path]).to_utf8
         @title = "#{basename} - 记事本"
         @path = opt[:txt_path]
       end
@@ -27,7 +27,7 @@ module Vmopt
       if opt[:open_window] 
         winexe = Win32API.new('kernel32', 'WinExec', 'PI', 'I')
 	      opt[:txt_path].nil? ? winexe.call("notepad.exe", 1) : winexe.call("notepad.exe #{opt[:txt_path]}", 1)
-    
+        sleep 1
       end
 
       @window = WinUtils::find_window(/#{@title}/) 
@@ -83,12 +83,12 @@ end #end of module vmopt
 
 if __FILE__ == $0
 
-  File.delete("C:\\1.txt") if FileTest::exist?("C:\\1.txt")
-  notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => "C:\\t.txt"})
-  notepad.set_text("hello world")
+  #File.delete("C:\\1.txt") if FileTest::exist?("C:\\1.txt")
+  notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => "C:\\1.txt"})
+  #notepad.set_text("hello world")
   puts notepad.read_text
-  notepad.save("C:\\1.txt")
-  notepad.close
+  #notepad.save("C:\\1.txt")
+  #notepad.close
   
 end
 
