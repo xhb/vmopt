@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+#encoding: utf-8
+banner = %q/
+  Help: 
+    Description:
+      vmopt is a tool box, use for windows system management.
+    
+    Tools:
+      1.vmdrive         
+      2.vmdvd
+      3.vmnetwork
+      4.vmnotepade
+      5.vmpower
+      6.vmserial
+      7.vmsysres
+
+    Example:
+      vmdrive -help   
+  /
+
+  puts banner
+  
