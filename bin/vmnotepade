@@ -47,6 +47,8 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
   
+   result_json = {}
+
    case option[:cmd] 
    when "create"
      if !option[:filepath].nil? and !option[:msg].nil?
@@ -56,7 +58,7 @@ end.parse!
        notepad.save(option[:filepath])
        notepad.close
      else
-        puts "Please check the params..."
+        result_json = {:status => "0",:data=>"Please check the params..."}
      end
 
    when "query"
@@ -66,9 +68,11 @@ end.parse!
        notepad.close
 
        if option[:msg] == msg
-         puts "检查已经存在且没有打开的txt文档内容一致"
+         result_json[:status]="0";
+         result_json[:data]="Existed txtfile content match given msg"
        else
-         puts "检查已经存在且没有打开txt文档内容不一致"
+         result_json[:status]="-1";
+         result_json[:data]="Existed txtfile content don't match given msg"
        end
 
      elsif !option[:filepath].nil? and !option[:msg].nil? and option[:opened]=="txt"
@@ -76,16 +80,19 @@ end.parse!
        msg = notepad.read_text
        #notepad.close
        if option[:msg] == msg
-         puts "检查已经打开的txt文档内容一致"
+         result_json[:status]="0";
+         result_json[:data]="Opened txtfile content match given msg"
        else
-         puts "检查已经打开的txt文档内容不一致"
+         result_json[:status]="-1";
+         result_json[:data]  ="Opened txtfile content don't match given msg"
        end
 
      else 
-        puts "Please check the params..."
+        result_json = {:status => "0",:data=>"Please check the params..."}
      end
 
    else
    	  system("vmnotepade -help");
    end
 
+puts result_json.inspect

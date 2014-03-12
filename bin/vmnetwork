@@ -86,47 +86,55 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
 
+   result_json = {};
+
    case option[:cmd] 
    #查询接口
    when "query"
      if option[:queryopt] == 'allinterface'
-       Vmopt::NetWork.show_netinterface.each{|e| puts (e);}
+       data = Vmopt::NetWork.show_netinterface
+       result_json = {:status => "0", :data => data}
      elsif option[:queryopt] == 'interface_discrip'
-     	 Vmopt::NetWork.adapter_discript.each{|d| puts (d) }
+     	 data = Vmopt::NetWork.adapter_discript
+       result_json = {:status => "0", :data => data}       
      elsif option[:queryopt] == 'interface_stat'
        if option[:inf].nil?
-       	 puts "Please check the interface params..."
+       	 result_json ={:status=>"-1", :data=>"Please check the interface params..."}
        else
-         puts Vmopt::NetWork.show_interface_stat(option[:inf])
+         data = Vmopt::NetWork.show_interface_stat(option[:inf])
+         result_json = {:status => "0", :data => data}
        end
        
      else
-     	 puts "Please check the query params..."
+     	 result_json ={:status=>"-1", :data=>"Please check the query params..."} 
      end
    
    #改变接口状态
    when "modify"
      if !option[:inf].nil? and !option[:opera].nil?
-       Vmopt::NetWork.adapter_opt(option[:inf],option[:opera]);
+       stat = Vmopt::NetWork.adapter_opt(option[:inf],option[:opera]);
+       result_json ={:status=>stat, :data=>"modify interface #{option[:inf]} to #{option[:opera]}"}
      else
-     	 puts "Please check the params..."
+     	 result_json ={:status=>"-1", :data=>"Please check the params..."} 
      end
 
    #重新扫描
    when "rescan"
      if option[:rescan] == "allinterface"
-       Vmopt::NetWork.adapter_rescan
+       stat = Vmopt::NetWork.adapter_rescan
+       result_json ={:status=>stat, :data=>"rescan all hardware"}
      else 
-        puts "Please check the params..."
+       result_json ={:status=>"-1", :data=>"Please check the params..."} 
      end
    
    #设置网卡IP
    when "set"
    	 if option[:linktype] == "dhcp"
        if  option[:inf].nil?
-         puts "Please check the params..."
+         result_json ={:status=>"-1", :data=>"Please check the params..."}
        else
-         Vmopt::NetWork.adapter_set_dhcp(option[:inf])
+         stat = Vmopt::NetWork.adapter_set_dhcp(option[:inf])
+         result_json ={:status=>stat, :data=>"set interface #{option[:inf]} with dhcp"}
        end
        
      elsif option[:linktype] == "static"
@@ -135,14 +143,16 @@ end.parse!
          op[:addr] = option[:address]
          op[:mask] = option[:netmask]
          op[:gateway]= option[:gateway]
-         Vmopt::NetWork.adapter_set_static(option[:inf], op)
+         stat = Vmopt::NetWork.adapter_set_static(option[:inf], op)
+         result_json ={:status=>stat, :data=>"set interface #{option[:inf]} with static IP option"}
        else
-       	 puts "Please check the params..."
+       	 result_json ={:status=>"-1", :data=>"Please check the params..."}
        end
 
      else
-     	 puts "Please check the params..."
+     	 result_json ={:status=>"-1", :data=>"Please check the params..."}
      end
-
    end
+
+puts result_json.inspect
 
