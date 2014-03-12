@@ -2,6 +2,7 @@
 #$:.unshift File.join(__FILE__,"..","..")
 require "vmopt/utils/wmi"
 
+module Vmopt
 class SystemResource
 
 	def get_cpu
@@ -30,5 +31,5 @@ class SystemResource
 	end
 
 end
-
+end #end of module vmopt
 

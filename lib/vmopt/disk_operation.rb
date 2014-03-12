@@ -1,6 +1,7 @@
 #encoding: utf-8
 require "vmopt/utils/wmi"
 
+module Vmopt
 class DiskOperation
 
 =begin
@@ -124,3 +125,4 @@ class DiskOperation
 		return true
 	end 
 end
+end #module vmopt

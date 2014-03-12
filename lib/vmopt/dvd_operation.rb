@@ -2,6 +2,7 @@
 require "vmopt/utils/wmi"
 require "au3"
 
+module Vmopt
 class DVDOperation
 =begin
 参数：无
@@ -109,5 +110,6 @@ class DVDOperation
 	end
 end
 
+end #module vmopt
 
 

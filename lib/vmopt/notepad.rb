@@ -81,17 +81,15 @@ module Vmopt
 
 end #end of module vmopt
 
-
-
 if __FILE__ == $0
-  
+
   File.delete("C:\\1.txt") if FileTest::exist?("C:\\1.txt")
-  #notepad = Vmopt::NotePad.new({:open_window => true})
   notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => "C:\\t.txt"})
   notepad.set_text("hello world")
   puts notepad.read_text
   notepad.save("C:\\1.txt")
   notepad.close
+  
 end
 
 

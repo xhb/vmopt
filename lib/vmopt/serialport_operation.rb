@@ -2,6 +2,7 @@
 require "vmopt/utils/wmi"
 require "serialport"
 
+module Vmopt
 class SerialPortOperation
 
 =begin
@@ -47,4 +48,5 @@ class SerialPortOperation
 		return stroutput
 	end
 end
+end #end of module vmopt
 

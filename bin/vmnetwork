@@ -1,3 +1,147 @@
 #!/usr/bin/env ruby
 #encoding: utf-8
+require "vmopt/network"
+require "optparse"
+
+option = {}
+option_parser = OptionParser.new do | opts |
+  opts.banner = %q/
+  Help: 
+    Description:
+      vmnetwork tool, use for network operation.
+    function:
+      1.show_netinterface        
+      2.show_interface_stat
+      3.adapter_opt
+      4.adapter_rescan
+      5.adapter_discript
+      6.adapter_set_dhcp
+      7.adapter_set_static
+      
+    Example:
+      vmnetwork --query  allinterface 
+      vmnetwork --query  interface_discrip
+      vmnetwork --query  interface_stat  --interface  "本地连接"
+      
+      vmnetwork --modify --interface "本地连接" --operation "禁用"
+      vmnetwork --modify --interface "本地连接" --operation "启用"
+      vmnetwork --modify --interface "本地连接" --operation "卸载"
+      
+      vmnetwork --rescan allinterface
+
+      vmnetwork --set  --linktype dhcp
+      vmnetwork --set  --linktype static --addr 192.168.1.10 --mask 255.255.255.0 --gateway 192.168.1.1 
+  /
+  #查询接口信息
+  opts.on('-q queryopt', '--query  queryopt', 'Query network information') do |value|
+    option[:queryopt] = value
+    option[:cmd] = "query"
+  end
+  
+  #改变接口状态
+  opts.on('-m ', '--modify ', 'modify network status') do
+    option[:cmd] = "modify"
+  end
+  
+  #重新扫描硬件
+  opts.on('-r allinterface ', '--rescan allinterface', 'rescan network adapter') do |value|
+    option[:rescan] = value
+    option[:cmd] = "rescan"
+  end
+
+  #获取操作
+  opts.on('-o opera', '--operation opera', 'Specify a network interface') do |value|
+    option[:opera] = value
+  end
+
+  #获取接口名称
+  opts.on('-i inf', '--interface  inf', 'Specify a network interface') do |value|
+    option[:inf] = value
+  end
+
+  #设置接口
+  opts.on('-s', '--set', 'Set ip for network interface') do
+    option[:cmd] = "set"
+  end
+
+  #设置连接方式
+  opts.on('-l type', '--linktype type', 'set linktype(dhcp or static) to netinterface') do|value|
+    option[:linktype] = value
+  end
+  
+  #设置ip地址
+  opts.on('-a address', '--addr address', 'set linktype = static and set ip address') do|value|
+    option[:address] = value
+  end
+
+  #设置掩码
+  opts.on('-m netmask', '--mask netmask', 'set linktype = static and set netmask') do|value|
+    option[:netmask] = value
+  end
+
+  #设置网关
+  opts.on('-g gateway', '--gateway gateway', 'set linktype = static and set gateway') do|value|
+    option[:gateway] = value
+  end
+
+end.parse!
+
+   case option[:cmd] 
+   #查询接口
+   when "query"
+     if option[:queryopt] == 'allinterface'
+       Vmopt::NetWork.show_netinterface.each{|e| puts (e);}
+     elsif option[:queryopt] == 'interface_discrip'
+     	 Vmopt::NetWork.adapter_discript.each{|d| puts (d) }
+     elsif option[:queryopt] == 'interface_stat'
+       unless option[:inf].nil?
+       	 Vmopt::NetWork.show_interface_stat(option[:inf])
+         return;
+       end
+       puts "Please check the interface params..."
+     else
+     	 puts "Please check the query params..."
+     end
+   
+   #改变接口状态
+   when "modify"
+     if !option[:inf].nil? and !option[:opera].nil?
+       Vmopt::NetWork.adapter_opt(option[:inf],option[:opera]);
+     else
+     	 puts "Please check the params..."
+     end
+
+   #重新扫描
+   when "rescan"
+     if option[:rescan] == "allinterface"
+       Vmopt::NetWork.adapter_rescan
+     else 
+        puts "Please check the params..."
+     end
+   
+   #设置网卡IP
+   when "set"
+   	 if option[:linktype] == "dhcp"
+       unless  option[:inf].nil?
+       	 Vmopt::NetWork.adapter_set_dhcp(option[:inf])
+       	 return;
+       end
+       puts "Please check the params..."
+
+     elsif option[:linktype] == "static"
+       if !option[:inf].nil? and !option[:address].nil? and !option[:netmask].nil? and !option[:gateway].nil?
+         op = {}
+         op[:addr] = option[:address]
+         op[:mask] = option[:netmask]
+         op[:gateway]= option[:gateway]
+         Vmopt::NetWork.adapter_set_static(option[:inf], op)
+       else
+       	 puts "Please check the params..."
+       end
+
+     else
+     	 puts "Please check the params..."
+     end
+
+   end
 

@@ -33,8 +33,8 @@ option_parser = OptionParser.new do | opts |
     option[:cmd] = "format"
   end
 end.parse!
-   
-   $disk = DiskOperation.new
+
+   $disk = Vmopt::DiskOperation.new
    if option[:cmd] == "query"
       if option[:queryopt] == 'harddisk'
         $disk.get_disk_information

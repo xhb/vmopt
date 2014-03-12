@@ -1,2 +1,94 @@
 #!/usr/bin/env ruby
 #encoding: utf-8
+require "vmopt/notepad"
+require "optparse"
+
+option = {}
+option_parser = OptionParser.new do | opts |
+  opts.banner = %q/
+  Help: 
+    Description:
+      vmnotepade tool, use for notepade management.
+    function:
+      1.use notepad to create a txt file 
+      2.query an existed txt file msg
+      3.query an opened notepad.exe msg
+
+    Example:
+      vmnotepade --create  --path   filepath   --msg msg 
+      vmnotepade --query  --existed txt --path filepath --msg msg
+      vmnotepade --query  --opened  txt --path filepath --msg msg
+
+  /
+  #创建txt文档
+  opts.on('-c', '--create', 'create a txt file') do
+    option[:cmd] = "create"
+  end
+  #查询txt
+  opts.on('-q', '--query', 'query txt file content or opened notepad window') do
+    option[:cmd] = "query"
+  end
+  #txt文档路径
+  opts.on('-p filepath', '--path filepath', 'specify a txt file with full path') do|value|
+    option[:filepath] = value
+  end
+  #文档信息
+  opts.on('-m msg', '--msg msg', 'fill a txt file with content') do|value|
+    option[:msg] = value
+  end
+  #已经存在但是没有打开的文档
+  opts.on('-e txt', '--existed txt', 'specify a existed txt file') do|value|
+    option[:existed] = value
+  end
+  #已经打开着的txt文档
+  opts.on('-o txt', '--opened txt', 'specify a opened txt file') do|value|
+    option[:opened] = value
+  end
+
+end.parse!
+  
+  $pow = Vmopt::PowerOperation.new()
+
+   case option[:cmd] 
+   when "create"
+     if !option[:filepath].nil? and !option[:msg].nil?
+       File.delete(option[:filepath]) if FileTest::exist?(option[:filepath])
+       notepad = NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       notepad.set_text(option[:msg])
+       notepad.save
+       notepad.close
+     else
+        puts "Please check the params..."
+     end
+
+   when "query"
+     if !option[:filepath].nil? and !option[:msg].nil? and option[:existed]=="txt"
+       notepad = NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       msg = notepad.read_text
+       if option[:msg] == msg
+         puts "检查已经存在且没有打开的txt文档内容一致"
+         return 0;
+       else
+         puts "检查已经存在且没有打开txt文档内容不一致"
+         return -1;
+       end
+
+     elsif !option[:filepath].nil? and !option[:msg].nil? and option[:opened]=="txt"
+       notepad = NotePad.new({:open_window => false, :txt_path => option[:filepath]})
+       msg = notepad.read_text
+       if option[:msg] == msg
+         puts "检查已经打开的txt文档内容一致"
+         return 0;
+       else
+         puts "检查已经打开的txt文档内容不一致"
+         return -1;
+       end
+
+     else 
+        puts "Please check the params..."
+     end
+
+   else
+   	  system("vmnotepade -help");
+   end
+

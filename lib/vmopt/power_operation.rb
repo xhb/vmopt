@@ -1,4 +1,5 @@
 #encoding: utf-8
+module Vmopt
 class PowerOperation
 
 =begin
@@ -6,7 +7,7 @@ class PowerOperation
 功能：关机
 返回值：默认
 =end
-	def self.shutdown
+	def shutdown
 		system("shutdown -s -t 00")
 	end
 
@@ -15,7 +16,7 @@ class PowerOperation
 功能：重启
 返回值：默认
 =end
-	def self.reboot
+	def reboot
 		system("shutdown -r -t 00")
 	end
 
@@ -25,7 +26,7 @@ class PowerOperation
 功能：注销
 返回值：默认
 =end
-	def self.logoff
+	def logoff
 		system("shutdown -l")
 	end
 
@@ -35,7 +36,7 @@ class PowerOperation
 功能：锁定或切换用户
 返回值：默认
 =end
-	def self.lock_user
+	def lock_user
 		system("rundll32.exe user32.dll LockWorkStation")
 	end
 
@@ -44,12 +45,13 @@ class PowerOperation
 功能：休眠，xp没有休眠的功能，win7有休眠的功能
 返回值：默认
 =end
-	def self.sleep
+	def sleep
 		system("shutdown -h")
 	end
 
 end
+end #end of module vmopt
 
 if __FILE__ == $0
-	PowerOperation.lock_user
+	PowerOperation.new().lock_user
 end

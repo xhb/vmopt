@@ -89,7 +89,7 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
    
-   $dvd = DVDOperation.new
+   $dvd = Vmopt::DVDOperation.new
 
    case option[:cmd]
    when "query" 
