@@ -25,11 +25,11 @@ option_parser = OptionParser.new do | opts |
     option[:cmd] = "query"
   end
   
-  opts.on('-w ', '--write ', 'write serialport information') do |value|
+  opts.on('-w', '--write', 'write serialport information') do |value|
     option[:cmd] = "write"
   end
 
-  opts.on('-r ', '--read ', 'Read serialport information') do |value|
+  opts.on('-r', '--read', 'Read serialport information') do |value|
     option[:cmd] = "read"
   end
   
@@ -63,7 +63,7 @@ end.parse!
      unless option[:serialnumber].nil?
        $sys.read(option[:serialnumber])
      else 
-        puts "Please check the params..."
+        puts "Please check --the params..."
      end
 
    end

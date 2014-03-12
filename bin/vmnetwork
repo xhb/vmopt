@@ -39,12 +39,12 @@ option_parser = OptionParser.new do | opts |
   end
   
   #改变接口状态
-  opts.on('-m ', '--modify ', 'modify network status') do
+  opts.on('-m', '--modify', 'modify network status') do
     option[:cmd] = "modify"
   end
   
   #重新扫描硬件
-  opts.on('-r allinterface ', '--rescan allinterface', 'rescan network adapter') do |value|
+  opts.on('-r allinterface', '--rescan allinterface', 'rescan network adapter') do |value|
     option[:rescan] = value
     option[:cmd] = "rescan"
   end
