@@ -96,22 +96,23 @@ end.parse!
      if option[:queryopt] == "dvd_information"
        $dvd.get_dvd_information
      elsif option[:queryopt] == "read_dvd"
-     	 unless option[:disksymbol].nil?
-     	   $dvd.read_dvd(option[:disksymbol])
-     	   return 0;
+     	 if option[:disksymbol].nil?
+         puts "please check the params, disksymbol is nil"
+     	 else 
+         $dvd.read_dvd(option[:disksymbol])
      	 end
-     	 puts "please check the params, disksymbol is nil"
      end
 
    when "disable"
    	 if option[:disable_opt] == "disable_all_dvd"
    	 	 $dvd.disable_all_dvd
    	 elsif option[:disable_opt] == "disable_index_dvd"
-   	 	 unless option[:diskindex].nil?
-     	   $dvd.disable_index_dvd(option[:diskindex])
-     	   return 0;
+   	 	 if option[:diskindex].nil?
+     	   puts "please check the params, diskindex is nil"
+       else
+         $dvd.disable_index_dvd(option[:diskindex]) 
      	 end
-     	 puts "please check the params, diskindex is nil"
+     	 
      end
    
    when "enable"
@@ -125,11 +126,12 @@ end.parse!
    	 if option[:remov_disks] == "remove_all_dvd"
    	   $dvd.remove_all_dvd
    	 elsif option[:remov_disks] == "remove_index_dvd"
-   	 	 unless option[:diskindex].nil?
-   	 	 	 $dvd.remove_index_dvd(option[:diskindex])
-   	 	   return 0;
+   	 	 if option[:diskindex].nil?
+   	 	   puts "please check the params."	
+       else
+         $dvd.remove_index_dvd(option[:diskindex])
    	 	 end
-   	 	 puts "please check the params."
+   	 	 
    	 end
 
    when "mount"
@@ -157,5 +159,4 @@ end.parse!
         system("vmdvd -help");
    end
 
-   	
 
