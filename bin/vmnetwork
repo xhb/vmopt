@@ -94,11 +94,12 @@ end.parse!
      elsif option[:queryopt] == 'interface_discrip'
      	 Vmopt::NetWork.adapter_discript.each{|d| puts (d) }
      elsif option[:queryopt] == 'interface_stat'
-       unless option[:inf].nil?
-       	 Vmopt::NetWork.show_interface_stat(option[:inf])
-         break;
+       if option[:inf].nil?
+       	 puts "Please check the interface params..."
+       else
+         Vmopt::NetWork.show_interface_stat(option[:inf])
        end
-       puts "Please check the interface params..."
+       
      else
      	 puts "Please check the query params..."
      end
@@ -122,12 +123,12 @@ end.parse!
    #设置网卡IP
    when "set"
    	 if option[:linktype] == "dhcp"
-       unless  option[:inf].nil?
-       	 Vmopt::NetWork.adapter_set_dhcp(option[:inf])
-       	 break;
+       if  option[:inf].nil?
+         puts "Please check the params..."
+       else
+         Vmopt::NetWork.adapter_set_dhcp(option[:inf])
        end
-       puts "Please check the params..."
-
+       
      elsif option[:linktype] == "static"
        if !option[:inf].nil? and !option[:address].nil? and !option[:netmask].nil? and !option[:gateway].nil?
          op = {}
