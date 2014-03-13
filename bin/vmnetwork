@@ -22,16 +22,16 @@ option_parser = OptionParser.new do | opts |
     Example:
       vmnetwork --query  allinterface 
       vmnetwork --query  interface_discrip
-      vmnetwork --query  interface_stat  --interface  "本地连接"
+      vmnetwork --query  interface_stat  --interface  "本地连接 2"
       
-      vmnetwork --modify --interface "本地连接" --operation "禁用"
-      vmnetwork --modify --interface "本地连接" --operation "启用"
-      vmnetwork --modify --interface "本地连接" --operation "卸载"
+      vmnetwork --modify --interface "本地连接 2" --operation "禁用"
+      vmnetwork --modify --interface "本地连接 2" --operation "启用"
+      vmnetwork --modify --interface "本地连接 2" --operation "卸载"
       
       vmnetwork --rescan allinterface
 
-      vmnetwork --set  --linktype dhcp
-      vmnetwork --set  --linktype static --addr 192.168.1.10 --mask 255.255.255.0 --gateway 192.168.1.1 
+      vmnetwork --set  --linktype dhcp --interface "本地连接 2"
+      vmnetwork --set  --linktype static --interface "本地连接 2" --addr 192.168.1.10 --mask 255.255.255.0 --gateway 192.168.1.1 
   /
   #查询接口信息
   opts.on('-q queryopt', '--query  queryopt', 'Query network information') do |value|

@@ -48,8 +48,8 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
   
-   result_json = {}
-
+result_json = {}
+begin
    case option[:cmd] 
    when "create"
      if !option[:filepath].nil? and !option[:msg].nil?
@@ -58,8 +58,9 @@ end.parse!
        notepad.set_text(option[:msg])
        notepad.save(option[:filepath])
        notepad.close
+       result_json = {:status => "0",:data=>"create file #{option[:filepath].to_utf8} success"}
      else
-        result_json = {:status => "0",:data=>"Please check the params..."}
+        result_json = {:status => "-1",:data=>"Please check the params..."}
      end
 
    when "query"
@@ -95,5 +96,7 @@ end.parse!
    else
    	  system("vmnotepade -help");
    end
-
+rescue Exception => e
+  result_json = {:status => "-1", :data=>"Catch exception #{e}"}
+end
 puts JSON.generate(result_json)
