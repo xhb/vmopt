@@ -2,6 +2,7 @@
 #encoding: utf-8
 require "vmopt/network"
 require "optparse"
+require 'json'
 
 option = {}
 option_parser = OptionParser.new do | opts |
@@ -154,5 +155,5 @@ end.parse!
      end
    end
 
-puts result_json.inspect
+puts JSON.generate(result_json)
 

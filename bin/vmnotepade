@@ -2,6 +2,7 @@
 #encoding: utf-8
 require "vmopt/notepad"
 require "optparse"
+require 'json'
 
 option = {}
 option_parser = OptionParser.new do | opts |
@@ -95,4 +96,4 @@ end.parse!
    	  system("vmnotepade -help");
    end
 
-puts result_json.inspect
+puts JSON.generate(result_json)
