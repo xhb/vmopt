@@ -88,6 +88,7 @@ option_parser = OptionParser.new do | opts |
 end.parse!
 
    result_json = {};
+begin
 
    case option[:cmd] 
    #查询接口
@@ -114,8 +115,9 @@ end.parse!
    when "modify"
      if !option[:inf].nil? and !option[:opera].nil?
        stat = Vmopt::NetWork.adapter_opt(option[:inf],option[:opera]);
-       result_json ={:status=>stat, :data=>"modify interface #{option[:inf]} to #{option[:opera]}"}
-     else
+       status = stat ? 0 : -1 ;
+       result_json ={:status=>"#{status}", :data=>"modify interface #{option[:inf].to_utf8} to #{option[:opera].to_utf8}"}
+       else
      	 result_json ={:status=>"-1", :data=>"Please check the params..."} 
      end
 
@@ -123,7 +125,8 @@ end.parse!
    when "rescan"
      if option[:rescan] == "allinterface"
        stat = Vmopt::NetWork.adapter_rescan
-       result_json ={:status=>stat, :data=>"rescan all hardware"}
+       status = stat ? 0 : -1 ;
+       result_json ={:status=>"#{status}", :data=>"rescan all hardware"}
      else 
        result_json ={:status=>"-1", :data=>"Please check the params..."} 
      end
@@ -135,7 +138,8 @@ end.parse!
          result_json ={:status=>"-1", :data=>"Please check the params..."}
        else
          stat = Vmopt::NetWork.adapter_set_dhcp(option[:inf])
-         result_json ={:status=>stat, :data=>"set interface #{option[:inf]} with dhcp"}
+         status = stat ? 0 : -1 ;
+         result_json ={:status=>"#{status}", :data=>"set interface #{option[:inf].to_utf8} with dhcp"}
        end
        
      elsif option[:linktype] == "static"
@@ -145,7 +149,8 @@ end.parse!
          op[:mask] = option[:netmask]
          op[:gateway]= option[:gateway]
          stat = Vmopt::NetWork.adapter_set_static(option[:inf], op)
-         result_json ={:status=>stat, :data=>"set interface #{option[:inf]} with static IP option"}
+         status = stat ? 0 : -1 ;
+         result_json ={:status=>"#{status}", :data=>"set interface #{option[:inf].to_utf8} with static IP option"}
        else
        	 result_json ={:status=>"-1", :data=>"Please check the params..."}
        end
@@ -154,6 +159,8 @@ end.parse!
      	 result_json ={:status=>"-1", :data=>"Please check the params..."}
      end
    end
-
+rescue Exception => e
+  result_json = {:status => "-1", :data=>"Catch exception #{e}"}
+end
 puts JSON.generate(result_json)
 

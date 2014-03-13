@@ -21,6 +21,7 @@ module Vmopt
     
     #功能：检查接口是否存在，返回接口名对应的适配器
     def self.adapter(interface)
+      interface = interface.to_utf8
       raise WinNetError::NoInterfaceError "Give me no NetWorkinterface" if interface.nil? or interface.empty? 
       adapter =WinNet.network_adapter.select do |inf|
         inf.NetConnectionId == interface ;
@@ -39,7 +40,7 @@ module Vmopt
     #例子：adapter_opt("本地连接 2"，"禁用")
     def self.adapter_opt(interface, opt)
       pci = adapter(interface).PNPDeviceID;
-      optt=case opt
+      optt=case opt.to_utf8
            when "卸载" then "remove"
            when "禁用" then "disable"
            when "启用" then "enable"
