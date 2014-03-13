@@ -1,0 +1,126 @@
+#!/usr/bin/env ruby
+#encoding: utf-8
+require "vmopt/notepad"
+require "optparse"
+require 'json'
+
+option = {}
+option_parser = OptionParser.new do | opts |
+  opts.banner = %q/
+  Help: 
+    Description:
+      vmnotepad tool, use for notepade management.
+    function:
+      1.use notepad to create a txt file 
+      2.query an existed txt file msg
+      3.query an opened notepad.exe msg
+
+    Example:
+      vmnotepad --create --path    filepath  --msg msg 
+      vmnotepad --query  --existed  --path filepath 
+      vmnotepad --query  --opened   --path filepath 
+      vmnotepad --close  --titile  txt_windows_titile
+      vmnotepad --unpack   --path    filepath
+  /
+  #创建txt文档
+  opts.on('-c', '--create', 'create a txt file') do
+    option[:cmd] = "create"
+  end
+  #查询txt
+  opts.on('-q', '--query', 'query txt file content or opened notepad window') do
+    option[:cmd] = "query"
+  end
+  #txt文档路径
+  opts.on('-p filepath', '--path filepath', 'specify a txt file with full path') do|value|
+    option[:filepath] = value
+  end
+  #文档信息
+  opts.on('-m msg', '--msg msg', 'fill a txt file with content') do|value|
+    option[:msg] = value
+  end
+  #已经存在但是没有打开的文档
+    option[:existed] = false
+  opts.on('-e', '--existed', 'specify a existed txt file') do
+    option[:existed] = true
+  end
+  #已经打开着的txt文档
+    option[:opened] = false
+  opts.on('-o', '--opened', 'specify a opened txt file') do
+    option[:opened] = true
+  end
+  #关闭打开着的txt文档
+  opts.on('-k', '--close', 'close a opened txt file') do
+    option[:cmd] = "close"
+  end
+  opts.on('-t txt_titile', '--titile txt_titile', 'specify a opened txt window titile') do|value|
+    option[:titile] = value
+  end
+  #关闭打开着的txt文档
+  opts.on('-u', '--unpack', 'open a txt file and hold on') do
+    option[:cmd] = "unpack"
+  end
+
+end.parse!
+
+result_json = {}
+
+def param_error
+  result_json = {:status => "-1",:data=>"Please check the params..."}
+end
+
+begin
+   case option[:cmd] 
+   when "create"
+     if !option[:filepath].nil? and !option[:msg].nil?
+       File.delete(option[:filepath]) if FileTest::exist?(option[:filepath])
+       notepad = Vmopt::NotePad.new({:open_window => true})
+       notepad.set_text(option[:msg])
+       notepad.save(option[:filepath])
+       notepad.close
+       result_json = {:status => "0",:data=>"create file #{option[:filepath].to_utf8} success"}
+     else
+       param_error
+     end
+
+   when "query"
+     if !option[:filepath].nil? and option[:existed]
+       notepad = Vmopt::NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       msg = notepad.read_text
+       notepad.close
+       result_json[:status]="0";
+       result_json[:data]=msg
+     elsif !option[:filepath].nil? and option[:opened]
+       notepad = Vmopt::NotePad.new({:open_window => false, :txt_path => option[:filepath]})
+       msg = notepad.read_text
+       result_json[:status]="0";
+       result_json[:data]=msg
+     else 
+       param_error
+     end
+   
+   when "close"
+     if !option[:titile].nil?
+       notepad = Vmopt::NotePad.new({:open_window => false, :txt_path => option[:titile]})
+       notepad.close
+       result_json = {:status => "0", :data=>"close txt #{option[:titile].to_utf8} success"}
+     else
+       param_error
+     end
+   
+   when "unpack"
+     if !option[:filepath].nil?
+       Vmopt::NotePad.new({:open_window => true, :txt_path => option[:filepath]})
+       result_json = {:status => "0", :data=>"open txt #{option[:filepath].to_utf8} success"}
+     else
+       param_error 
+     end
+
+   else
+   	  system("vmnotepade -help");
+   end
+rescue Exception => e
+  result_json = {:status => "-1", :data=>"Catch exception #{e}"}
+end
+
+puts JSON.generate(result_json) unless option[:cmd].nil?
+
