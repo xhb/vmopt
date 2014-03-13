@@ -11,10 +11,13 @@ class SerialPortOperation
 返回值：默认
 =end
 	def get_serial_port
+		data_value=[]
 		colItems = WMI.execquery ("select * from Win32_SerialPort")
 		for objItem in colItems do
-			print "串口名称:",(objItem.Name),"状态:",objItem.Status,"\n"
+			str = "串口名称:#{objItem.Name},状态:#{objItem.Status}"
+			data_value << Hash["#{objItem.DeviceID}",str]
 		end
+		return data_value
 	end
 =begin
 参数：串口号，写入的字符串
@@ -28,8 +31,9 @@ class SerialPortOperation
  		file.write(strinput)
  		end
 		rescue Exception
-			print "Can't open #{strcom},Please input right serialport name"
+			return false
 		end
+		return true
 	end
 =begin
 参数：串口号
@@ -39,11 +43,14 @@ class SerialPortOperation
 	def read(strcom)
 		begin
 		stroutput=""
-		File.open(strcom, 'w+') do |file|
- 		stroutput=file.read(50)
- 		end
+ 		sp = SerialPort.new "#{strcom}", 9600
+ 	    sp.read_timeout=4000 #定时4秒
+ 	    stroutput = sp.read(50)
+ 	    if stroutput.empty?
+ 	    	return false
+ 	    end
 		rescue Exception
-			print "Can't open #{strcom},Please input right serialport name"
+			return false
 		end
 		return stroutput
 	end

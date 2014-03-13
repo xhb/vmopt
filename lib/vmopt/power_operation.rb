@@ -46,7 +46,7 @@ class PowerOperation
 返回值：默认
 =end
 	def sleep
-		system("shutdown -h")
+		system("rundll32.exe powrprof.dll SetSuspendState")
 	end
 
 end

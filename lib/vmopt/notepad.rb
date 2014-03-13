@@ -13,9 +13,9 @@ module Vmopt
     # txt_path: 文件路径
     # open_window: 表示需不需要创建该notepad窗口，默认创建,不设置表示获取该窗口
     # 
-
+    
     def initialize(opt)
-
+  
       if opt[:txt_path].nil?
         @title = "记事本"
       else  
@@ -31,7 +31,7 @@ module Vmopt
       end
 
       @window = WinUtils::find_window(/#{@title}/) 
-
+    
     end
     
     # 功能：
@@ -58,8 +58,9 @@ module Vmopt
     def save(filepath=nil)
       if !filepath.nil?
         @window.WinMenuSelectItem("[CLASS:Notepad]", "", "文件", "另存为")
+        @window.WinWait("[CLASS:#32770]","",5)
         savewindow = WinUtils::find_window(/另存为/)
-        savewindow.text_field(:class => "Edit", :id => 1148).set(filepath)
+        savewindow.text_field(:class => "Edit").set(filepath)
         savewindow.buttons.each do|button| 
           if button.value == "保存(&S)";
            button.click; 

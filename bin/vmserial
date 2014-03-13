@@ -2,6 +2,7 @@
 #encoding: utf-8
 require "vmopt/serialport_operation"
 require "optparse"
+require "json"
 
 option = {}
 option_parser = OptionParser.new do | opts |
@@ -16,7 +17,7 @@ option_parser = OptionParser.new do | opts |
 
     Example:
       vmserial --query  serialport    
-      vmserial --write  --serialnumber com1  --msg  hello world
+      vmserial --write  --serialnumber com1  --msg  helloworld
       vmserial --read   --serialnumber com2  
   /
 
@@ -42,30 +43,46 @@ option_parser = OptionParser.new do | opts |
   end
 
 end.parse!
-
+   
+   resultok = {"status"=>"0"}
+   resultfail = {"status"=>"-1"}
+   data_value=[]
    $sys = Vmopt::SerialPortOperation.new
    case option[:cmd] 
    when "query"
      if option[:serialport]  == 'serialport'
-        $sys.get_serial_port
+        data_value = $sys.get_serial_port
      else 
         puts "Please check the params..."
      end
 
    when "write"
      if !option[:serialnumber].nil? and !option[:msg].nil?
-        $sys.write(option[:serialnumber],option[:msg])
+        ret = $sys.write(option[:serialnumber],option[:msg])
+        data_value<<"write serialport success"
      else 
         puts "Please check the params..."
      end
 
    when "read"
      unless option[:serialnumber].nil?
-       $sys.read(option[:serialnumber])
+       ret = $sys.read(option[:serialnumber])
+       data_value<<ret
      else 
         puts "Please check --the params..."
      end
-
+   else
+    system("vmserial -help") 
    end
 
+
+   if ret==false
+     resultfail["data"]="serialport operation fail"
+     retjson = JSON.generate resultfail
+   else
+     resultok["data"]=data_value
+     retjson = JSON.generate resultok 
+   end
+
+   puts retjson unless option[:cmd].nil?
 

@@ -87,7 +87,12 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
 
-   result_json = {};
+result_json = {};
+
+def param_error
+  result_json = {:status => "-1",:data=>"Please check the params..."}
+end
+
 begin
 
    case option[:cmd] 
@@ -100,15 +105,15 @@ begin
      	 data = Vmopt::NetWork.adapter_discript
        result_json = {:status => "0", :data => data}       
      elsif option[:queryopt] == 'interface_stat'
-       if option[:inf].nil?
-       	 result_json ={:status=>"-1", :data=>"Please check the interface params..."}
-       else
-         data = Vmopt::NetWork.show_interface_stat(option[:inf])
+       if !option[:inf].nil?
+       	 data = Vmopt::NetWork.show_interface_stat(option[:inf])
          result_json = {:status => "0", :data => data}
+       else
+         param_error
        end
        
      else
-     	 result_json ={:status=>"-1", :data=>"Please check the query params..."} 
+     	 param_error
      end
    
    #改变接口状态
@@ -118,7 +123,7 @@ begin
        status = stat ? 0 : -1 ;
        result_json ={:status=>"#{status}", :data=>"modify interface #{option[:inf].to_utf8} to #{option[:opera].to_utf8}"}
        else
-     	 result_json ={:status=>"-1", :data=>"Please check the params..."} 
+     	 param_error
      end
 
    #重新扫描
@@ -128,18 +133,18 @@ begin
        status = stat ? 0 : -1 ;
        result_json ={:status=>"#{status}", :data=>"rescan all hardware"}
      else 
-       result_json ={:status=>"-1", :data=>"Please check the params..."} 
+       param_error
      end
    
    #设置网卡IP
    when "set"
    	 if option[:linktype] == "dhcp"
-       if  option[:inf].nil?
-         result_json ={:status=>"-1", :data=>"Please check the params..."}
-       else
+       if  !option[:inf].nil?
          stat = Vmopt::NetWork.adapter_set_dhcp(option[:inf])
          status = stat ? 0 : -1 ;
          result_json ={:status=>"#{status}", :data=>"set interface #{option[:inf].to_utf8} with dhcp"}
+       else
+         param_error
        end
        
      elsif option[:linktype] == "static"
@@ -152,15 +157,16 @@ begin
          status = stat ? 0 : -1 ;
          result_json ={:status=>"#{status}", :data=>"set interface #{option[:inf].to_utf8} with static IP option"}
        else
-       	 result_json ={:status=>"-1", :data=>"Please check the params..."}
+       	 param_error
        end
 
      else
-     	 result_json ={:status=>"-1", :data=>"Please check the params..."}
+     	 system("vmnetwork --help");
      end
    end
 rescue Exception => e
   result_json = {:status => "-1", :data=>"Catch exception #{e}"}
 end
-puts JSON.generate(result_json)
+puts JSON.generate(result_json) unless option[:cmd].nil?
+
 

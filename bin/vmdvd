@@ -3,7 +3,7 @@
 
 require "vmopt/dvd_operation"
 require "optparse"
-
+require "json"
 option = {}
 option_parser = OptionParser.new do | opts |
   opts.banner = %q/
@@ -24,7 +24,7 @@ option_parser = OptionParser.new do | opts |
 
     Example:
       vmdvd --query  dvd_information    
-      vmdvd --query  read_dvd --path disksymbol
+      vmdvd --query  read_dvd --symbol disksymbol
 
       vmdvd --disable  disable_all_dvd
       vmdvd --disable  disable_index_dvd --index diskindex
@@ -71,7 +71,7 @@ option_parser = OptionParser.new do | opts |
   end
   
   #弹出光驱
-  opts.on('-j enject_dvd', '--enject enject_dvd', 'mount all dvd drive') do |value|
+  opts.on('-j enject_dvd', '--eject enject_dvd', 'mount all dvd drive') do |value|
     option[:enject_dvd] = value
     option[:cmd] = "enject"
   end
@@ -89,68 +89,81 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
    
+   resultok = {"status"=>"0"}
+   resultfail = {"status"=>"-1"}
+   data_value=[]
    $dvd = Vmopt::DVDOperation.new
 
    case option[:cmd]
    when "query" 
      if option[:queryopt] == "dvd_information"
-       $dvd.get_dvd_information
+       data_value = $dvd.get_dvd_information
      elsif option[:queryopt] == "read_dvd"
      	 if option[:disksymbol].nil?
          puts "please check the params, disksymbol is nil"
      	 else 
-         $dvd.read_dvd(option[:disksymbol])
+         ret = $dvd.read_dvd(option[:disksymbol])
+         data_value<<"read dvd success"
      	 end
      end
 
    when "disable"
    	 if option[:disable_opt] == "disable_all_dvd"
-   	 	 $dvd.disable_all_dvd
+   	 	 ret = $dvd.disable_all_dvd
+       data_value<<"disable all dvd success"
    	 elsif option[:disable_opt] == "disable_index_dvd"
    	 	 if option[:diskindex].nil?
      	   puts "please check the params, diskindex is nil"
        else
-         $dvd.disable_index_dvd(option[:diskindex]) 
+         ret = $dvd.disable_index_dvd(option[:diskindex])
+         data_value<<"disable dvd success"
      	 end
-     	 
+     	else
+        puts "please check the params"
      end
    
    when "enable"
    	 if option[:enabl_all_disks] = "enable_all_dvd"
-   	 	 $dvd.enable_all_dvd
+   	 	 ret = $dvd.enable_all_dvd
+       data_value<<"enable all dvd success"
    	 else
    	 	 puts "please check the params."
    	 end
    
    when "remove"
    	 if option[:remov_disks] == "remove_all_dvd"
-   	   $dvd.remove_all_dvd
+   	   ret = $dvd.remove_all_dvd
+       data_value<<"remove all dvd success"
    	 elsif option[:remov_disks] == "remove_index_dvd"
    	 	 if option[:diskindex].nil?
    	 	   puts "please check the params."	
        else
          $dvd.remove_index_dvd(option[:diskindex])
+         data_value<<"remove dvd success"
    	 	 end
    	 	 
    	 end
 
    when "mount"
    	 if option[:mount_all_dvd] == "mount_all_dvd"
-   	   $dvd.mount_all_dvd
+   	   ret = $dvd.mount_all_dvd
+       data_value<<"mount all dvd success"
    	 else
    	 	 puts "please check the params."
    	 end 
 
    when "enject"
-   	 if option[:enject_dvd] == "enject_dvd"
-   	   $dvd.enject_dvd
+   	 if option[:enject_dvd] == "eject_dvd"
+   	   ret = $dvd.eject_dvd
+       data_value<<"eject dvd success"
    	 else
    	 	 puts "please check the params."
    	 end 
    	
    when "close"
    	 if option[:close_dvd] == "close_dvd"
-   	   $dvd.close_dvd
+   	   ret = $dvd.close_dvd
+       data_value<<"close dvd success"
    	 else
    	 	 puts "please check the params."
    	 end 	
@@ -160,3 +173,12 @@ end.parse!
    end
 
 
+  if ret==false
+     resultfail["data"]="dvd operation fail"
+     retjson = JSON.generate resultfail
+   else
+     resultok["data"]=data_value
+     retjson = JSON.generate resultok
+  end
+
+ puts retjson unless option[:cmd].nil?

@@ -1,7 +1,7 @@
 #encoding: utf-8
 require "vmopt/utils/wmi"
 require "au3"
-
+require "Win32API"
 module Vmopt
 class DVDOperation
 =begin
@@ -10,11 +10,13 @@ class DVDOperation
 返回值：默认
 =end
 	def get_dvd_information()
+		data_value=[]
 		colItems = WMI.execquery ("select * from Win32_CDROMDrive")
 		for colItem in colItems do	
-			print "介质类型:",colItem.MediaType,"  盘符:",colItem.Drive,\
-	        	"   描述信息:",colItem.Description,"\n"		
+			str = "介质类型:#{colItem.MediaType} 盘符:#{colItem.Drive} 描述信息:#{colItem.Description}"
+			data_value << Hash["#{colItem.Drive}",str]		
 		end
+		return data_value
 	end
 
 =begin

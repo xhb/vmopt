@@ -2,6 +2,7 @@
 #encoding: utf-8
 require "vmopt/system_resource"
 require "optparse"
+require "json"
 
 option = {}
 option_parser = OptionParser.new do | opts |
@@ -15,7 +16,7 @@ option_parser = OptionParser.new do | opts |
 
     Example:
       vmsysres --query  cpu    
-      vmsysres --query  memery  
+      vmsysres --query  memory  
 
   /
   opts.on('-q queryopt', '--query  queryopt', 'Query system resource information') do |value|
@@ -25,15 +26,31 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
 
+   resultok = {"status"=>"0"}
+   resultfail = {"status"=>"-1"}
+   data_value=[]
+   ret = true
    $sys = Vmopt::SystemResource.new
    if option[:cmd] == "query"
       if option[:queryopt] == 'cpu'
-        $sys.get_cpu
-      elsif option[:queryopt] == 'memery'
-        $sys.get_memory
+        data_value = $sys.get_cpu
+      elsif option[:queryopt] == 'memory'
+        data_value = $sys.get_memory
       else 
         puts "Please check the params..."
       end
+   else
+    system("vmsysres -help") 
    end
+
+   if ret==false
+     resultfail["data"]="system resource operation fail"
+     retjson = JSON.generate resultfail
+   else
+     resultok["data"]=data_value
+     retjson = JSON.generate resultok
+   end
+   
+   puts retjson unless option[:cmd].nil?
 
 

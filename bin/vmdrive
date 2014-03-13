@@ -3,7 +3,7 @@
 
 require "vmopt/disk_operation"
 require "optparse"
-
+require "json"
 option = {}
 option_parser = OptionParser.new do | opts |
   opts.banner = %q/
@@ -23,6 +23,7 @@ option_parser = OptionParser.new do | opts |
       vmdrive --format unformated_disk
       vmdrive --format [diskindex]
   /
+  
   opts.on('-q queryopt', '--query  queryopt', 'Query harddisk information') do |value|
     option[:queryopt] = value
     option[:cmd] = "query"
@@ -34,28 +35,45 @@ option_parser = OptionParser.new do | opts |
   end
 end.parse!
 
+   resultok = {"status"=>"0"}
+   resultfail = {"status"=>"-1"}
+   data_value=[]
    $disk = Vmopt::DiskOperation.new
+
    if option[:cmd] == "query"
       if option[:queryopt] == 'harddisk'
-        $disk.get_disk_information
+        data_value = $disk.get_disk_information
       elsif option[:queryopt] == 'partition'
-        $disk.get_partition_information
+        data_value = $disk.get_partition_information
       elsif option[:queryopt] == 'unformated_disk'
-        $disk.unformat_disk
+        data_value = $disk.unformat_disk
       else 
         puts "Please check the params..."
       end
 
    elsif option[:cmd] == "format" 
       if option[:disk] == 'unformated_disk'
-        $disk.chk_format_disk
+        ret = $disk.chk_format_disk
+        data_value<<"format disk success"
       elsif option[:disk] =~ /\d/
-        $disk.format_disk_by_index(option[:disk].to_i)
+        ret = $disk.format_disk_by_index(option[:disk].to_i)
+        data_value<<"format disk success"
       else 
         puts "Please check the params..."
       end
-
+   else
+      system("vmdrive -help") 
    end
+  
+  if ret==false
+    resultfail["data"]="format disk fail"
+    retjson = JSON.generate resultfail
+  else
+    resultok["data"]=data_value
+    retjson = JSON.generate resultok
+  end
+   
+puts retjson unless option[:cmd].nil?
 
 
 

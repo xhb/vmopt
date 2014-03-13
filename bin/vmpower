@@ -2,6 +2,7 @@
 #encoding: utf-8
 require "vmopt/power_operation"
 require "optparse"
+require "json"
 
 option = {}
 option_parser = OptionParser.new do | opts |
@@ -30,22 +31,41 @@ option_parser = OptionParser.new do | opts |
 
 end.parse!
   
+  resultok = {"status"=>"0"}
+  resultfail = {"status"=>"-1"}
+  data_value=[]
   $pow = Vmopt::PowerOperation.new()
 
    if option[:cmd] == "do"
       if option[:popt] == "shutdown"
-        $pow.shutdown
+        ret = $pow.shutdown
+        data_value << "system is going to shutdown"
       elsif option[:popt] == "reboot"
-        $pow.reboot
+        ret = $pow.reboot
+        data_value << "system is going to reboot"
       elsif option[:popt] == "logoff"
-        $pow.logoff
+        ret = $pow.logoff
+        data_value << "system is going to logoff"
       elsif option[:popt] == "lock_user"
-        $pow.lock_user
+        ret = $pow.lock_user
+        data_value << "system is going to lock_user"
       elsif option[:popt] == "sleep"
-      	$pow.sleep
+      	ret = $pow.sleep
+        data_value << "system is going to sleep"
       else 
         puts "Please check the params..."
       end
    else
    	  system("vmpower -help");
    end
+
+   if ret==true
+     resultok["data"]=data_value
+     retjson = JSON.generate resultok
+   else
+     resultfail["data"]="power operation fail"
+     retjson = JSON.generate resultfail  
+   end
+   puts retjson unless option[:cmd].nil?
+
+
